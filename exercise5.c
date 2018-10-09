@@ -6,7 +6,9 @@
 #include "bmi160.h"
 #include "nrf_drv_gpiote.h"
 
-#define BUTTON_PIN 13
+// prototypes
+void button_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action);
+uint32_t config_gpio();
 
 //#include "sdk_config.h"
 //#include "nrf_gpio.h"
@@ -23,10 +25,13 @@
 
 #define SPI_INSTANCE 0
 
-#define SPI_SS_PIN  24 /*grey wire  CS on the bmi */
-#define SPI_MISO_PIN 25 /*white wire SCL on the BMI+*/
-#define SPI_MOSI_PIN 26 /*blu wire SDX on the bmi*/
-#define SPI_SCK_PIN 27 /*violet SCL on the bmi*/ 
+#define SPI_SS_PIN  26 /*grey wire  CS on the bmi */
+#define SPI_MISO_PIN 23 /*white wire SCL on the BMI+*/
+#define SPI_MOSI_PIN 24 /*blu wire SDX on the bmi*/
+#define SPI_SCK_PIN 22 /*violet SCL on the bmi*/ 
+
+#define BUTTON_PIN 27
+
 
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(0); 
 static volatile bool spi_xfer_done; 
@@ -203,7 +208,7 @@ rslt = bmi160_set_int_config(&int_config, &sensor);
 int main(void)
 {
 	/*Variables group*/
-	uint32_t errorSpi, errorSensor ; 
+	uint32_t errorSpi, errorSensor, errorGPIO ; 
 	int8_t result; 
   /* Configure board. */
   bsp_board_init(BSP_INIT_LEDS);
@@ -212,23 +217,69 @@ int main(void)
 	
 	errorSensor = sensor_config();
 
+	errorGPIO = config_gpio();
 	// Configure the pin as input
-	err_code = nrf_drv_gpiote_in_init(BUTTON_PIN, &config, button_handler);
-	
-	int8_t aceleration = 0;
 	
 	while (true)
 	{
-		aceleration = get_bmi160_fifo_data();
-		nrf_delay_ms(500);
 	}
 }
 
 
+/**
+* Function for configuring General Purpose I/O.
+*/
+
+uint32_t config_gpio()
+{
+
+	uint32_t err_code = NRF_SUCCESS;
+
+  if(!nrf_drv_gpiote_is_init())
+
+               {
+
+                              err_code = nrf_drv_gpiote_init();
+
+               }
+
+// Set which clock edge triggers the interrupt
+
+               nrf_drv_gpiote_in_config_t config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+
+// Configure the internal pull up resistor
+
+               config.pull = NRF_GPIO_PIN_PULLUP;
+
+// Configure the pin as input
+
+               err_code = nrf_drv_gpiote_in_init(BUTTON_PIN, &config, button_handler);
+
+              
+
+               if (err_code != NRF_SUCCESS)
+
+               {
+
+               // handle error condition
+
+               }
+
+  // Enable events
+  nrf_drv_gpiote_in_event_enable(BUTTON_PIN, true);
+               return err_code;
+
+}
 
 
-
-
+/**
+* Handler for GPIO events.
+*/
+void button_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+ 		int8_t error = get_bmi160_fifo_data();
+		
+}
 
 
 
