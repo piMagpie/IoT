@@ -1,0 +1,10 @@
+.\_build\gcm.o: ..\..\..\..\..\..\external\mbedtls\library\gcm.c
+.\_build\gcm.o: ..\..\..\..\..\..\external\nrf_tls\mbedtls\nrf_crypto\config\nrf_crypto_mbedtls_config.h
+.\_build\gcm.o: ..\config\sdk_config.h
+.\_build\gcm.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/check_config.h
+.\_build\gcm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\_build\gcm.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/gcm.h
+.\_build\gcm.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/cipher.h
+.\_build\gcm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\_build\gcm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\_build\gcm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
