@@ -1,0 +1,11 @@
+.\_build\cmac.o: ..\..\..\..\..\..\external\mbedtls\library\cmac.c
+.\_build\cmac.o: ..\..\..\..\..\..\external\nrf_tls\mbedtls\nrf_crypto\config\nrf_crypto_mbedtls_config.h
+.\_build\cmac.o: ..\config\sdk_config.h
+.\_build\cmac.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/check_config.h
+.\_build\cmac.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\_build\cmac.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/cmac.h
+.\_build\cmac.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/cipher.h
+.\_build\cmac.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\_build\cmac.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\_build\cmac.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/platform.h
+.\_build\cmac.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

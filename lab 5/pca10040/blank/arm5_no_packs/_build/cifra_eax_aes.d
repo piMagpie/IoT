@@ -1,0 +1,11 @@
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\cifra_eax_aes.c
+.\_build\cifra_eax_aes.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\_build\cifra_eax_aes.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\handy.h
+.\_build\cifra_eax_aes.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\_build\cifra_eax_aes.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\cf_config.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\cifra_eax_aes.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\prp.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\bitops.h
+.\_build\cifra_eax_aes.o: ..\..\..\..\..\..\external\cifra_AES128-EAX\tassert.h

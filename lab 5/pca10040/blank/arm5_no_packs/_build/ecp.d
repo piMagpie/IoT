@@ -1,0 +1,12 @@
+.\_build\ecp.o: ..\..\..\..\..\..\external\mbedtls\library\ecp.c
+.\_build\ecp.o: ..\..\..\..\..\..\external\nrf_tls\mbedtls\nrf_crypto\config\nrf_crypto_mbedtls_config.h
+.\_build\ecp.o: ..\config\sdk_config.h
+.\_build\ecp.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/check_config.h
+.\_build\ecp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\_build\ecp.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/ecp.h
+.\_build\ecp.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/bignum.h
+.\_build\ecp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\_build\ecp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\_build\ecp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\_build\ecp.o: ..\..\..\..\..\..\external\mbedtls\include\mbedtls/platform.h
+.\_build\ecp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

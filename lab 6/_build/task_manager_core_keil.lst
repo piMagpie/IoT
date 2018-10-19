@@ -1,0 +1,280 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; Copyright (c) 2017 - 2017, Nordic Semiconductor ASA
+    2 00000000         ; 
+    3 00000000         ; All rights reserved.
+    4 00000000         ; 
+    5 00000000         ; Redistribution and use in source and binary forms, wit
+                       h or without modification,
+    6 00000000         ; are permitted provided that the following conditions a
+                       re met:
+    7 00000000         ; 
+    8 00000000         ; 1. Redistributions of source code must retain the abov
+                       e copyright notice, this
+    9 00000000         ;    list of conditions and the following disclaimer.
+   10 00000000         ; 
+   11 00000000         ; 2. Redistributions in binary form, except as embedded 
+                       into a Nordic
+   12 00000000         ;    Semiconductor ASA integrated circuit in a product o
+                       r a software update for
+   13 00000000         ;    such product, must reproduce the above copyright no
+                       tice, this list of
+   14 00000000         ;    conditions and the following disclaimer in the docu
+                       mentation and/or other
+   15 00000000         ;    materials provided with the distribution.
+   16 00000000         ; 
+   17 00000000         ; 3. Neither the name of Nordic Semiconductor ASA nor th
+                       e names of its
+   18 00000000         ;    contributors may be used to endorse or promote prod
+                       ucts derived from this
+   19 00000000         ;    software without specific prior written permission.
+                       
+   20 00000000         ; 
+   21 00000000         ; 4. This software, with or without modification, must o
+                       nly be used with a
+   22 00000000         ;    Nordic Semiconductor ASA integrated circuit.
+   23 00000000         ; 
+   24 00000000         ; 5. Any software provided in binary form under this lic
+                       ense must not be reverse
+   25 00000000         ;    engineered, decompiled, modified and/or disassemble
+                       d.
+   26 00000000         ; 
+   27 00000000         ; THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA 
+                       "AS IS" AND ANY EXPRESS
+   28 00000000         ; OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+                       THE IMPLIED WARRANTIES
+   29 00000000         ; OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A
+                        PARTICULAR PURPOSE ARE
+   30 00000000         ; DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA
+                        OR CONTRIBUTORS BE
+   31 00000000         ; LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+                       EXEMPLARY, OR
+   32 00000000         ; CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+                       PROCUREMENT OF SUBSTITUTE
+   33 00000000         ; GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR B
+                       USINESS INTERRUPTION)
+   34 00000000         ; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+                        IN CONTRACT, STRICT
+   35 00000000         ; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+                        ARISING IN ANY WAY OUT
+   36 00000000         ; OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE PO
+                       SSIBILITY OF SUCH DAMAGE.
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   37 00000000         ;
+   38 00000000         
+   39 00000000                 PRESERVE8
+   40 00000000                 THUMB
+   41 00000000                 AREA             |.text|, CODE, READONLY
+   42 00000000         
+   43 00000000         task_switch
+                               PROC
+   44 00000000                 EXPORT           task_switch
+   45 00000000                 IMPORT           task_schedule
+   46 00000000         
+   47 00000000 F3EF 8014       MRS              R0, CONTROL ; Fetch CONTROL reg
+                                                            ister to R0
+   48 00000004         
+   49 00000004                 IF               :DEF: FLOAT_ABI_HARD
+   50 00000004 F010 0F04       TST              R0, #(1 << 2) 
+                                                            ; Check FPCA flag.
+   51 00000008 BF1E            ITTT             NE
+   52 0000000A EEF1 1A10       VMRSNE           R1, FPSCR   ; If FPCA set, fetc
+                                                            h FPSCR.
+   53 0000000E B403            STMDBNE          SP!, {R0, R1} ; If FPCA set, sa
+                                                            ve FPSCR (also pad 
+                                                            stack to 8-byte ali
+                                                            gnment)
+   54 00000010 ED2D 0A20       VSTMDBNE         SP!, {S0-S31} ; If FPCA set, sa
+                                                            ve FPU registers.
+   55 00000014                 ENDIF
+   56 00000014         
+   57 00000014 B401            STMDB            SP!, {R0}   ; Save CONTROL regi
+                                                            ster.
+   58 00000016 F020 0004       AND              R0, R0, #~(1 << 2) 
+                                                            ; Clear FPCA bit.
+   59 0000001A F380 8814       MSR              CONTROL, R0 ; Update CONTROL re
+                                                            gister.
+   60 0000001E         
+   61 0000001E E92D 5FF1       STMDB            SP!, {R0, R4-R12, LR} ; Save CP
+                                                            U registers. Reserv
+                                                            e space for R0, nee
+                                                            ded to pass argumen
+                                                            t to new task.
+   62 00000022         
+   63 00000022 4668            MOV              R0, SP      ; Call task schedul
+                                                            er with current sta
+                                                            ck pointer as argum
+                                                            ent.
+   64 00000024 4908            LDR              R1, =task_schedule ;
+   65 00000026 4788            BLX              R1          ;
+   66 00000028         
+   67 00000028 4685            MOV              SP, R0      ; Switch to new sta
+                                                            ck, returned by tas
+                                                            k scheduler.
+   68 0000002A         
+   69 0000002A E8BD 5FF8       LDMIA            SP!, {R3, R4-R12, LR} ; Restore
+                                                             CPU registers. Arg
+                                                            ument to new task i
+                                                            s in R3.
+   70 0000002E BC01            LDMIA            SP!, {R0}   ; Restore CONTROL r
+                                                            egister.
+   71 00000030 F380 8814       MSR              CONTROL, R0 ; Update CONTROL re
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+                                                            gister.
+   72 00000034         
+   73 00000034                 IF               :DEF: FLOAT_ABI_HARD
+   74 00000034 F010 0F04       TST              R0, #(1 << 2) 
+                                                            ; Check FPCA flag.
+   75 00000038 BF1E            ITTT             NE
+   76 0000003A ECBD 0A20       VLDMIANE         SP!, {S0-S31} ; If FPCA set, re
+                                                            store FPU registers
+                                                            .
+   77 0000003E BC03            LDMIANE          SP!, {R0, R1} ; If FPCA set, re
+                                                            store FPSCR (also r
+                                                            emove padding).
+   78 00000040 EEE1 1A10       VMSRNE           FPSCR, R1   ; If FPCA set, upda
+                                                            te FPSCR
+   79 00000044                 ENDIF
+   80 00000044         
+   81 00000044 4618            MOV              R0, R3      ; Place optional ta
+                                                            sk argument in R0.
+   82 00000046 4770            BX               LR          ; Return to new tas
+                                                            k.
+   83 00000048         
+   84 00000048                 ENDP
+   85 00000048                 END
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
+erwork --depend=.\_build\task_manager_core_keil.d -o.\_build\task_manager_core_
+keil.o -I..\..\..\config -I..\..\..\..\..\..\components -I..\..\..\..\..\..\com
+ponents\boards -I..\..\..\..\..\..\components\drivers_nrf\nrf_soc_nosd -I..\..\
+..\..\..\..\components\libraries\atomic -I..\..\..\..\..\..\components\librarie
+s\atomic_fifo -I..\..\..\..\..\..\components\libraries\balloc -I..\..\..\..\..\
+..\components\libraries\bsp -I..\..\..\..\..\..\components\libraries\button -I.
+.\..\..\..\..\..\components\libraries\cli -I..\..\..\..\..\..\components\librar
+ies\cli\uart -I..\..\..\..\..\..\components\libraries\crc16 -I..\..\..\..\..\..
+\components\libraries\crc32 -I..\..\..\..\..\..\components\libraries\crypto -I.
+.\..\..\..\..\..\components\libraries\crypto\backend\cc310 -I..\..\..\..\..\..\
+components\libraries\crypto\backend\cc310_bl -I..\..\..\..\..\..\components\lib
+raries\crypto\backend\cifra -I..\..\..\..\..\..\components\libraries\crypto\bac
+kend\mbedtls -I..\..\..\..\..\..\components\libraries\crypto\backend\micro_ecc 
+-I..\..\..\..\..\..\components\libraries\crypto\backend\nrf_hw -I..\..\..\..\..
+\..\components\libraries\crypto\backend\nrf_sw -I..\..\..\..\..\..\components\l
+ibraries\crypto\backend\oberon -I..\..\..\..\..\..\components\libraries\csense 
+-I..\..\..\..\..\..\components\libraries\csense_drv -I..\..\..\..\..\..\compone
+nts\libraries\delay -I..\..\..\..\..\..\components\libraries\ecc -I..\..\..\..\
+..\..\components\libraries\experimental_section_vars -I..\..\..\..\..\..\compon
+ents\libraries\experimental_task_manager -I..\..\..\..\..\..\components\librari
+es\fds -I..\..\..\..\..\..\components\libraries\fifo -I..\..\..\..\..\..\compon
+ents\libraries\fstorage -I..\..\..\..\..\..\components\libraries\gfx -I..\..\..
+\..\..\..\components\libraries\gpiote -I..\..\..\..\..\..\components\libraries\
+hardfault -I..\..\..\..\..\..\components\libraries\hardfault\nrf52 -I..\..\..\.
+.\..\..\components\libraries\hci -I..\..\..\..\..\..\components\libraries\led_s
+oftblink -I..\..\..\..\..\..\components\libraries\log -I..\..\..\..\..\..\compo
+nents\libraries\log\src -I..\..\..\..\..\..\components\libraries\low_power_pwm 
+-I..\..\..\..\..\..\components\libraries\mem_manager -I..\..\..\..\..\..\compon
+ents\libraries\memobj -I..\..\..\..\..\..\components\libraries\mpu -I..\..\..\.
+.\..\..\components\libraries\mutex -I..\..\..\..\..\..\components\libraries\pwm
+ -I..\..\..\..\..\..\components\libraries\pwr_mgmt -I..\..\..\..\..\..\componen
+ts\libraries\queue -I..\..\..\..\..\..\components\libraries\ringbuf -I..\..\..\
+..\..\..\components\libraries\scheduler -I..\..\..\..\..\..\components\librarie
+s\sdcard -I..\..\..\..\..\..\components\libraries\slip -I..\..\..\..\..\..\comp
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+onents\libraries\sortlist -I..\..\..\..\..\..\components\libraries\spi_mngr -I.
+.\..\..\..\..\..\components\libraries\stack_guard -I..\..\..\..\..\..\component
+s\libraries\stack_info -I..\..\..\..\..\..\components\libraries\strerror -I..\.
+.\..\..\..\..\components\libraries\timer -I..\..\..\..\..\..\components\librari
+es\twi_mngr -I..\..\..\..\..\..\components\libraries\twi_sensor -I..\..\..\..\.
+.\..\components\libraries\uart -I..\..\..\..\..\..\components\libraries\util -I
+..\..\.. -I..\..\..\..\..\..\external\cifra_AES128-EAX -I..\..\..\..\..\..\exte
+rnal\fnmatch -I..\..\..\..\..\..\external\fprintf -I..\..\..\..\..\..\external\
+mbedtls\include -I..\..\..\..\..\..\external\micro-ecc\micro-ecc -I..\..\..\..\
+..\..\external\nrf_cc310\include -I..\..\..\..\..\..\external\nrf_oberon -I..\.
+.\..\..\..\..\external\nrf_oberon\include -I..\..\..\..\..\..\external\nrf_tls\
+mbedtls\nrf_crypto\config -I..\..\..\..\..\..\external\protothreads -I..\..\..\
+..\..\..\external\protothreads\pt-1.4 -I..\..\..\..\..\..\external\thedotfactor
+y_fonts -I..\..\..\..\..\..\integration\nrfx -I..\..\..\..\..\..\integration\nr
+fx\legacy -I..\..\..\..\..\..\modules\nrfx -I..\..\..\..\..\..\modules\nrfx\dri
+vers\include -I..\..\..\..\..\..\modules\nrfx\hal -I..\..\..\..\..\..\modules\n
+rfx\mdk -I..\config -I.\RTE\Device\nRF52832_xxAA -I.\RTE\_nrf52832_xxaa -IC:\Ke
+il_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include -IC:\Keil_v5\ARM\PACK\NordicSemico
+nductor\nRF_DeviceFamilyPack\8.17.0\Device\Include --predefine="__EVAL SETA 1" 
+--predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 526" --pred
+efine="_RTE_ SETA 1" --predefine="NRF52 SETA 1" --predefine="BOARD_PCA10040 SET
+A 1" --predefine="CONFIG_GPIO_AS_PINRESET SETA 1" --predefine="FLOAT_ABI_HARD S
+ETA 1" --predefine="NRF52 SETA 1" --predefine="NRF52832_XXAA SETA 1" --predefin
+e="NRF52_PAN_74 SETA 1" --predefine="NRF_CRYPTO_MAX_INSTANCE_COUNT SETA 1" --pr
+edefine="SWI_DISABLE0 SETA 1" --predefine="__HEAP_SIZE SETA 8192" --predefine="
+__STACK_SIZE SETA 8192" --predefine="uECC_ENABLE_VLI_API SETA 0" --predefine="u
+ECC_OPTIMIZATION_LEVEL SETA 3" --predefine="uECC_SQUARE_FUNC SETA 0" --predefin
+e="uECC_SUPPORT_COMPRESSED_POINT SETA 0" --predefine="uECC_VLI_NATIVE_LITTLE_EN
+DIAN SETA 1" --cpreproc_opts=-DBOARD_PCA10040,-DCONFIG_GPIO_AS_PINRESET,-DFLOAT
+_ABI_HARD,-DNRF52,-DNRF52832_XXAA,-DNRF52_PAN_74,-DNRF_CRYPTO_MAX_INSTANCE_COUN
+T=1,-DSWI_DISABLE0,-D__HEAP_SIZE=8192,-D__STACK_SIZE=8192,-DuECC_ENABLE_VLI_API
+=0,-DuECC_OPTIMIZATION_LEVEL=3,-DuECC_SQUARE_FUNC=0,-DuECC_SUPPORT_COMPRESSED_P
+OINT=0,-DuECC_VLI_NATIVE_LITTLE_ENDIAN=1 --list=.\_build\task_manager_core_keil
+.lst ..\..\..\..\..\..\components\libraries\experimental_task_manager\task_mana
+ger_core_keil.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 41 in file ..\..\..\..\..\..\components\libraries\experimental_ta
+sk_manager\task_manager_core_keil.s
+   Uses
+      None
+Comment: .text unused
+task_switch 00000000
+
+Symbol: task_switch
+   Definitions
+      At line 43 in file ..\..\..\..\..\..\components\libraries\experimental_ta
+sk_manager\task_manager_core_keil.s
+   Uses
+      At line 44 in file ..\..\..\..\..\..\components\libraries\experimental_ta
+sk_manager\task_manager_core_keil.s
+Comment: task_switch used once
+2 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+task_schedule 00000000
+
+Symbol: task_schedule
+   Definitions
+      At line 45 in file ..\..\..\..\..\..\components\libraries\experimental_ta
+sk_manager\task_manager_core_keil.s
+   Uses
+      At line 64 in file ..\..\..\..\..\..\components\libraries\experimental_ta
+sk_manager\task_manager_core_keil.s
+Comment: task_schedule used once
+1 symbol
+355 symbols in table
