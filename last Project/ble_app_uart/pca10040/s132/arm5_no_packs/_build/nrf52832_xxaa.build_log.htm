@@ -28,17 +28,19 @@ Project File Date:  11/19/2018
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'nrf52832_xxaa'
 compiling main.c...
+..\..\..\main.c(851): warning:  #177-D: variable "gyro_frames_req"  was declared but never referenced
+  	uint8_t gyro_frames_req = 3; 
 ..\..\..\main.c(858): warning:  #177-D: variable "size"  was declared but never referenced
   	uint16_t size = 40; 
-..\..\..\main.c(927): warning:  #550-D: variable "errorSpi"  was set but never used
+..\..\..\main.c(922): warning:  #550-D: variable "errorSpi"  was set but never used
   		uint32_t errorSpi; 
-..\..\..\main.c(930): warning:  #550-D: variable "errorSensor"  was set but never used
+..\..\..\main.c(925): warning:  #550-D: variable "errorSensor"  was set but never used
   		uint32_t errorSensor; 
-..\..\..\main.c: 3 warnings, 0 errors
+..\..\..\main.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=29040 RO-data=1224 RW-data=220 ZI-data=19852  
+Program Size: Code=29072 RO-data=1224 RW-data=220 ZI-data=19852  
 FromELF: creating hex file...
-".\_build\nrf52832_xxaa.axf" - 0 Error(s), 3 Warning(s).
+".\_build\nrf52832_xxaa.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -64,10 +66,10 @@ Package Vendor: NordicSemiconductor
    * Component: ARM::CMSIS:CORE:4.3.0
 
    * Component: NordicSemiconductor::Device:Startup:8.17.0
-      Source file:   Device\Source\arm\arm_startup_nrf52.s
-      Include file:  Device\Include\system_nrf52.h
       Source file:   Device\Source\system_nrf52.c
-Build Time Elapsed:  00:00:02
+      Include file:  Device\Include\system_nrf52.h
+      Source file:   Device\Source\arm\arm_startup_nrf52.s
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

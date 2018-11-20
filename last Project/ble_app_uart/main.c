@@ -848,36 +848,31 @@ char bufferZ[20];
 
 int8_t get_bmi160_fifo_data()
 {
-	uint8_t gyro_frames_req = 28; 
+	uint8_t gyro_frames_req = 1; 
 	int8_t rslt = BMI160_OK;
-	uint8_t acc_frames_req = 28;
+	uint8_t acc_frames_req = 1;
 	// Read the fifo buffer using SPI
 	rslt = bmi160_get_fifo_data(&sensor);
 	// Parse the data and extract 28 gyro frames
 	rslt = bmi160_extract_accel(acc_data, &acc_frames_req, &sensor);
 	uint16_t size = 40; 
 	
-		//send greating
-		unsigned char greating[100] = {"New session start now"};  
-		uint16_t len = sizeof(greating);
-		ble_nus_data_send(&m_nus, greating,&len, m_conn_handle); 
+	//send greating
+	unsigned char greating[100] = {"New session start now"};  
+	uint16_t len = sizeof(greating);
+	ble_nus_data_send(&m_nus, greating,&len, m_conn_handle); 
 
-	for (uint8_t i = 0; i < gyro_frames_req; i++) 
-	{
+	//convert in string the float number of every axes
+	sprintf(bufferX, "Acc x %f", (float)acc_data[0].x); 
+	sprintf(bufferY, "Acc y %f", (float)acc_data[0].y); 
+	sprintf(bufferZ, "Acc z %f", (float)acc_data[0].z); 
+	//get the length of the system
+	uint16_t lunghezza = sizeof(bufferX);
+	//send via bluetooth
+	ble_nus_data_send(&m_nus, (uint8_t *) bufferX,&lunghezza, m_conn_handle);
+	ble_nus_data_send(&m_nus, (uint8_t *) bufferY,&lunghezza, m_conn_handle);
+	ble_nus_data_send(&m_nus, (uint8_t *) bufferZ,&lunghezza, m_conn_handle);
 		
-		sprintf(bufferX, "Acc x %f", (float)acc_data[i].x); 
-		sprintf(bufferY, "Acc y %f", (float)acc_data[i].y); 
-		sprintf(bufferZ, "Acc z %f", (float)acc_data[i].z); 
-		
-		uint16_t lunghezza = sizeof(bufferX);
-		
-		ble_nus_data_send(&m_nus, (uint8_t *) bufferX,&lunghezza, m_conn_handle);
-		ble_nus_data_send(&m_nus, (uint8_t *) bufferY,&lunghezza, m_conn_handle);
-		ble_nus_data_send(&m_nus, (uint8_t *) bufferZ,&lunghezza, m_conn_handle);
-		
-	}
-
-
 	return rslt;
 }
 
@@ -904,10 +899,7 @@ uint32_t config_gpio()
 	config.pull = NRF_GPIO_PIN_PULLUP;
 	// Configure the pin as input
 	err_code = nrf_drv_gpiote_in_init(INTERRUPT_PIN, &config, interrupt_handler);
-	if (err_code != NRF_SUCCESS)
-	{
-			// handle error condition
-	}
+
 	// Enable events
 	nrf_drv_gpiote_in_event_enable(INTERRUPT_PIN, true);
 	return err_code;
@@ -923,7 +915,7 @@ int main(void)
 {
 		 
 		bsp_board_init(BSP_INIT_LEDS);
-		//config_gpio();
+		config_gpio();
 		uint32_t errorSpi; 
 		errorSpi = spi_config(); 
 		
@@ -954,12 +946,6 @@ int main(void)
     for (;;)
     {
         idle_state_handle();
-
-				while(true)
-				{
-					uint8_t result = get_bmi160_fifo_data(); 
-					ctn = ctn+1; 
-				}
 
     }
 }
